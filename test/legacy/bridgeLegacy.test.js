@@ -15,7 +15,7 @@ describe('Bridge legacy', () => {
 
     beforeAll(async () => {
         this.version = await require('../../lib/util/utils').getZigbee2mqttVersion();
-        controller = new Controller();
+        controller = new Controller(jest.fn(), jest.fn());
         await controller.start();
     })
 
@@ -123,12 +123,12 @@ describe('Bridge legacy', () => {
         MQTT.events.message('zigbee2mqtt/bridge/config/permit_join', 'true');
         await flushPromises();
         expect(zigbeeHerdsman.permitJoin).toHaveBeenCalledTimes(1);
-        expect(zigbeeHerdsman.permitJoin).toHaveBeenCalledWith(true);
+        expect(zigbeeHerdsman.permitJoin).toHaveBeenCalledWith(true, undefined, undefined);
         zigbeeHerdsman.permitJoin.mockClear();
         MQTT.events.message('zigbee2mqtt/bridge/config/permit_join', 'false');
         await flushPromises();
         expect(zigbeeHerdsman.permitJoin).toHaveBeenCalledTimes(1);
-        expect(zigbeeHerdsman.permitJoin).toHaveBeenCalledWith(false);
+        expect(zigbeeHerdsman.permitJoin).toHaveBeenCalledWith(false, undefined, undefined);
     });
 
     it('Should allow to reset', async () => {
@@ -251,7 +251,7 @@ describe('Bridge legacy', () => {
     });
 
     it('Shouldnt rename when no device has been joined', async () => {
-        controller = new Controller();
+        controller = new Controller(jest.fn(), jest.fn());
         await controller.start();
         await flushPromises();
         expect(settings.getDevice('0x000b57fffec6a5b2').friendlyName).toStrictEqual('bulb');
